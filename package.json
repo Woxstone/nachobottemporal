@@ -1,0 +1,14 @@
+{
+  "name": "nochobot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "archivo.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "telegraf": "^4.6.0"
+  }
+}
