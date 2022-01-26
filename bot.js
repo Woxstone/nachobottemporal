@@ -3,44 +3,45 @@ const archivo = require('./archivo.js')
 const config = require('./config.js')
 
 const bot = new Telegraf(config.botToken)
-// esto devuleve una promesa como gestinarla
-let usuarios = archivo.lee(config.datafile) ?? []
+// esto devuleve una promesa como gestinarla. 
+// Proteger la clase Users para que no hayan redundancias
+let Users = archivo.lee(config.datafile) ?? [] 
 
 bot.start((ctx) => {
   ctx.reply('Hola, soy vuestro robot de Telegram')
 })
 
-bot.help((contexto) => {
+bot.help((ctx) => {
   //contexto es el contexto del mensaje
-  contexto.reply(
+  ctx.reply(
     'Este bot te ayudará a gestionar tus gastos.\n escribe /gastos para ver los gastos',
   )
 })
 
 // Los comandos deben ir juntos al prinicpio, nunca detras del bot.on
-bot.command('gastos', (contexto) => {
-  const texto = contexto.message.text
-  const username = contexto.message.from.username
-  const nombre = contexto.message.from.first_name
+bot.command('gastos', (ctx) => {
+  const texto = ctx.message.text
+  const username = ctx.message.from.username
+  const nombre = ctx.message.from.first_name
   let devuelve = `Hola ${nombre}, aquí están tus gastos.\n`
 
-  const user = users.filter((user) => user.username === username)
+  const user = Users.filter((user) => user.username === username)
   user[0].gastos.forEach((gasto) => {
     devuelve += `He guardado el ${gasto}€\n`
   })
-  contexto.reply(devuelve)
+  ctx.reply(devuelve)
 
   // archivo.graba(config.datafile, usuarios)
 })
 
 bot.command('nuevo_usuario', (ctx) => {
-  const iduser = ctx.message.from.id
-  let respuesta
+  const iduser = ctx.message.from.id;
+  let respuesta;
   // asegurarte que la promesa esta contestada por ahora siempre funciona pero no es como deberia hacerse
   // se podria hacer un a funcion global de esto para usarla en todos lo camandos que necesite
-  const user = usuarios.filter((user) => user.id === iduser)
+  const user = Users.filter((user) => user.id === iduser)
   if (user.length === 0) {
-    usuarios.push({
+    Users.push({
       id: iduser,
       username: ctx.message.from.username,
       nombre: ctx.message.from.first_name,
@@ -48,7 +49,7 @@ bot.command('nuevo_usuario', (ctx) => {
       gastos: [],
     })
     respuesta = `Acabo de crear tu usuario ${ctx.message.from.first_name}.\n crea tu primer gasto con /graba`
-    archivo.graba(config.datafile, usuarios)
+    archivo.graba(config.datafile, Users)
   } else {
     respuesta = `Ya tienes un usuario ${ctx.message.from.first_name}.\n crea tus gastos con /graba`
   }
@@ -56,13 +57,13 @@ bot.command('nuevo_usuario', (ctx) => {
   return
 })
 
-bot.command('graba', (contexto) => {
+bot.command('graba', (ctx) => {
   const iduser = ctx.message.from.id;
   let answer;
-  let user = usuarios.filter((user) => user.id === iduser)
+  let user = Users.filter((user) => user.id === iduser)  // getUserById
   if (user.length === 0) {
     ctx.reply(`${ctx.message.from.first_name} no tienes un usuario ahora te lo creo.`);
-    usuarios.push({
+    Users.push({
       id: iduser,
       username: ctx.message.from.username,
       nombre: ctx.message.from.first_name,
@@ -70,23 +71,23 @@ bot.command('graba', (contexto) => {
       gastos: [],
     })
     answer = `Acabo de crear tu usuario ${ctx.message.from.first_name}.\n crea tu primer gasto con /gastos`
-    archivo.graba(config.datafile, usuarios)
+    archivo.graba(config.datafile, Users)
   } else {
     answer = `Ya tienes un usuario ${ctx.message.from.first_name}.\n crea tus gastos con /gasto`
   }
-  ctx.reply(answer)
+  ctx.reply(answer);
 
-  user = usuarios.find(user => user.id === iduser);
+  user = Users.find(user => user.id === iduser);
   user.status = 'listening';
-  if (user.status === 'listening') {
-    archivo.graba(config.datafile, usuarios)  // no se como puntar esto a que grabe en gasto
-    contexto.reply('Estoy grabando los gastos.')
+  while (user.status === 'listening') { // 1 pasar el json a array de objetos 2 modificarlo 3 volverlo a escribir entero 
+    
+    archivo.graba(config.datafile, user)  // no se como puntar esto a que grabe en gasto
+    ctx.reply('Estoy grabando los gastos.')
     if (ctx.message.text === 'F') {
-      user.status = 'pardo';
+      user.status = 'parado';
     }
-  } else {
-    ctx.reply('Tus gastos an sido guardados.')
-  }
+  };
+    ctx.reply('Tus gastos an sido guardados.');
 })
 
 bot.hears('pablo', (contexto) => {

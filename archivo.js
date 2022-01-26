@@ -1,6 +1,12 @@
 const fs = require('fs')
 
 exports.graba = (filename, data) => {
+  let dataBase = lee(filename);
+  let n = 0; // arelgra lo del n
+  do {
+    n += 1;
+  } while (data.id === dataBase[n - 1].id);
+  dataBase[n - 1] = data;
   fs.writeFile(filename, JSON.stringify(data), (err) => {
     if (err) {
       console.log('Error al grabar.')
