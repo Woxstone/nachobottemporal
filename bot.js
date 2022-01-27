@@ -5,6 +5,54 @@ const config = require('./config.js')
 const bot = new Telegraf(config.botToken)
 // esto devuleve una promesa como gestinarla. 
 // Proteger la clase Users para que no hayan redundancias
+
+class Gasto {
+  constructor(date, concept, value) {
+    this.date = date;
+    this.concept = concept;
+    this.value = value; 
+  }
+}
+
+class User {
+  constructor(id, username, first_name, status, gastos) {
+    this.id = id;
+    this.username = username;
+    this.first_name = first_name;
+    this.status = status;
+    this.gastos = [];
+  }
+  newGasto(date, concept, value) {
+    const g = new Gasto(date, concept, value)
+    this.gastos.push(g) // no se si solo deberia de ser gastos o User[gastos]
+    return g
+  }
+  get allGastos() {
+    return this.gastos // no se si solo deberia de ser gastos
+  }
+}
+
+class Users {
+  constructor() {
+    this.users = []
+  }
+  newUser(id, username, first_name, status, gastos) {
+    const u = new Player(id, username, first_name, status, gastos)
+    this.users.push(u)
+    return u
+  }
+  get allUsers() {
+    return this.users
+  }
+  get numberOfUsers() {
+    return this.users.length
+  }
+  // cada vez que la llamas verifica que no aya dos id iguales y de salida te de o true o dos indices 
+  // se puede hacer con un for?
+  set noEqualId() {
+  }
+} // Y como se usa esto????
+
 let Users = archivo.lee(config.datafile) ?? [] 
 
 bot.start((ctx) => {
