@@ -4,8 +4,4 @@ class Gasto {
       this.concept = concept;
       this.value = value; 
     }
-    newGasto(date, concept, value) {
-        const g = new Gasto(date, concept, value);
-        return g
-    }
   }

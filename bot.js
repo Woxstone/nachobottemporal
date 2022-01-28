@@ -3,17 +3,18 @@ const archivo = require('./archivo.js')
 const config = require('./config.js')
 const Gasto = require('./classes/gasto')
 const User = require('./classes/User')
-const Users = require('./classes/Users')
+const Users_lib = require('./classes/Users')
 
 const bot = new Telegraf(config.botToken)
 // esto devuleve una promesa como gestinarla. 
 
-let Users = archivo.lee(config.datafile) ?? [] 
+let users_db = archivo.lee(config.datafile) ?? [] 
 // aqui esta dando problemas en el terminal  Users = archivo.lee(config.datafile) ?? []
 // ^
 
 // TypeError: Assignment to constant variable. si pongo let me dice que Users ya esta defiana 
 // que le cambio de mobr? porque en realidad son dos cosas 
+let usersOfSystem = new Users_lib(users_db);
 
 bot.start((ctx) => {
   ctx.reply('Hola, soy vuestro robot de Telegram')
@@ -44,27 +45,20 @@ bot.command('gastos', (ctx) => {
 // cambair los commandos
 bot.command('nuevo_usuario', (ctx) => {
   const iduser = ctx.message.from.id;
-  let respuesta;
+  let respuesta = 'Algo a ido mal en nuevo usuario';
   // asegurarte que la promesa esta contestada por ahora siempre funciona pero no es como deberia hacerse
   // se podria hacer un a funcion global de esto para usarla en todos lo camandos que necesite
-  const user = Users.filter((user) => user.id === iduser) // cambair esto usando las nuevas propiedades
-  if (user.length === 0) {
-    user = User.newUser(iduser, ctx.message.from.username, ctx.message.from.first_name, 'parado', []);
-    Users.addUser(user);
-    // Users.push({
-    //   id: iduser,
-    //   username: ctx.message.from.username,
-    //   nombre: ctx.message.from.first_name,
-    //   status: 'parado', // https://es.wikipedia.org/wiki/M%C3%A1quina_de_estados
-    //   gastos: [],
-    // })
-    respuesta = `Acabo de crear tu usuario ${ctx.message.from.first_name}.\n crea tu primer gasto con /graba`
+  messageUser = new User(iduser, ctx.message.from.username, ctx.message.from.first_name, 'parado', []);
+   // cambair esto usando las nuevas propiedades
+  if (!usersOfSystem.isUserStore(messageUser)) {
+    usersOfSystem.addUser(messageUser);
+    respuesta = `Acabo de crear tu usuario ${messageUser.first_name}.\n crea tu primer gasto con /graba`
     archivo.graba(config.datafile, Users)
   } else {
-    respuesta = `Ya tienes un usuario ${ctx.message.from.first_name}.\n crea tus gastos con /graba`
+    respuesta = `Ya tienes un usuario ${messageUser.first_name}.\n crea tus gastos con /graba`
   }
-  ctx.reply(respuesta)
-  return
+  ctx.reply(respuesta);
+  return;
 })
 
 bot.command('graba', (ctx) => {
