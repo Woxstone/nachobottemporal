@@ -8,12 +8,12 @@ const Users = require('./classes/Users')
 const bot = new Telegraf(config.botToken)
 // esto devuleve una promesa como gestinarla. 
 
-Users = archivo.lee(config.datafile) ?? [] 
+let Users = archivo.lee(config.datafile) ?? [] 
 // aqui esta dando problemas en el terminal  Users = archivo.lee(config.datafile) ?? []
 // ^
 
 // TypeError: Assignment to constant variable. si pongo let me dice que Users ya esta defiana 
-// que le cambio de mobr? porque en realidad son dos cosas ditintas
+// que le cambio de mobr? porque en realidad son dos cosas 
 
 bot.start((ctx) => {
   ctx.reply('Hola, soy vuestro robot de Telegram')
