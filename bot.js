@@ -6,7 +6,7 @@ const User = require('./classes/User')
 const Users_lib = require('./classes/Users')
 
 const bot = new Telegraf(config.botToken)
-// esto devuleve una promesa como gestinarla. 
+// esto devuleve una promesa como gestinarla.  adsfaefefaefafaefffaefeafeaf
 
 let users_db = archivo.lee(config.datafile) ?? [] 
 // aqui esta dando problemas en el terminal  Users = archivo.lee(config.datafile) ?? []
