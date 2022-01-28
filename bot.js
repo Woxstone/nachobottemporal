@@ -8,7 +8,12 @@ const Users = require('./classes/Users')
 const bot = new Telegraf(config.botToken)
 // esto devuleve una promesa como gestinarla. 
 
-let Users = archivo.lee(config.datafile) ?? [] 
+Users = archivo.lee(config.datafile) ?? [] 
+// aqui esta dando problemas en el terminal  Users = archivo.lee(config.datafile) ?? []
+// ^
+
+// TypeError: Assignment to constant variable. si pongo let me dice que Users ya esta defiana 
+// que le cambio de mobr? porque en realidad son dos cosas ditintas
 
 bot.start((ctx) => {
   ctx.reply('Hola, soy vuestro robot de Telegram')
@@ -42,15 +47,17 @@ bot.command('nuevo_usuario', (ctx) => {
   let respuesta;
   // asegurarte que la promesa esta contestada por ahora siempre funciona pero no es como deberia hacerse
   // se podria hacer un a funcion global de esto para usarla en todos lo camandos que necesite
-  const user = Users.filter((user) => user.id === iduser)
+  const user = Users.filter((user) => user.id === iduser) // cambair esto usando las nuevas propiedades
   if (user.length === 0) {
-    Users.push({
-      id: iduser,
-      username: ctx.message.from.username,
-      nombre: ctx.message.from.first_name,
-      status: 'parado', // https://es.wikipedia.org/wiki/M%C3%A1quina_de_estados
-      gastos: [],
-    })
+    user = User.newUser(iduser, ctx.message.from.username, ctx.message.from.first_name, 'parado', []);
+    Users.addUser(user);
+    // Users.push({
+    //   id: iduser,
+    //   username: ctx.message.from.username,
+    //   nombre: ctx.message.from.first_name,
+    //   status: 'parado', // https://es.wikipedia.org/wiki/M%C3%A1quina_de_estados
+    //   gastos: [],
+    // })
     respuesta = `Acabo de crear tu usuario ${ctx.message.from.first_name}.\n crea tu primer gasto con /graba`
     archivo.graba(config.datafile, Users)
   } else {
@@ -120,17 +127,7 @@ bot.hears('pablo', (contexto) => {
 //   }
 // })
 
-// update: {
-//     update_id: 24475725,
-//     message: {
-//       message_id: 47,
-//       from: {
-//         id: 1557883152,
-//         is_bot: false,
-//         first_name: "Pablo",
-//         username: "PabloRobotics",
-//         language_code: "es",
-//       },
+// console.log(ctx.message);
 
 bot.launch()
 console.log('Bot iniciado. Envia comandos desde Telegram')
